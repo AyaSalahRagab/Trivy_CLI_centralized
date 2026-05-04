@@ -1,0 +1,41 @@
+name: Trivy → DefectDojo POC
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Trivy CLI
+         run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+          | sh -s -- -b /usr/local/bin
+
+     - name: Run Trivy scan via Central Server
+        run: |
+          trivy fs . \
+            --server 108.130.109.77:4954 \
+            --format json \
+            --output trivy-report.json
+         
+
+            .
+
+      - name: Upload results to DefectDojo
+        env:
+          DOJO_URL: ${{ secrets.DOJO_URL }}
+          DOJO_API_KEY: ${{ secrets.DOJO_API_KEY }}
+        run: |
+          curl -X POST "$DOJO_URL/api/v2/import-scan/" \
+            -H "Authorization: Token $DOJO_API_KEY" \
+            -F "scan_type=Trivy Scan" \
+            -F "file=@trivy-report.json" \
+            -F "product_name=DevSecOps-POC" \
+            -F "engagement_name=GitHub-Trivy"
