@@ -1,4 +1,4 @@
-name: Trivy → DefectDojo POC
+name: Trivy_CLI_Cenral
 
 on:
   push:
