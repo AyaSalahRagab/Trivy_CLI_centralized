@@ -14,19 +14,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Trivy CLI
-         run: |
+        run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
           | sh -s -- -b /usr/local/bin
 
-     - name: Run Trivy scan via Central Server
+      - name: Run Trivy scan via Central Server
         run: |
           trivy fs . \
-            --server 108.130.109.77:4954 \
+            --server http://108.130.109.77:4954 \
             --format json \
             --output trivy-report.json
-         
-
-            .
 
       - name: Upload results to DefectDojo
         env:
